@@ -8,6 +8,7 @@
 - **工具模式**: 单个工具执行，包含天气查询和计算器功能
 - **遥测监控**: OpenTelemetry集成用于追踪和监控
 - **结构化输出**: JSON格式结果和全面日志记录
+- **多导出器支持**: Console和HTTP导出器，支持生产环境部署
 
 ## 项目结构
 
@@ -52,18 +53,39 @@ pkg/
 OpenTelemetry集成提供全面的可观测性：
 
 - **追踪**: 所有操作的分布式追踪
-- **指标**: 令牌计数和性能指标
+- **多导出器支持**: Console和HTTP导出器，支持生产和开发环境
+- **自动检测**: 根据环境变量自动选择最佳导出器
 - **语义约定**: 使用OpenAI GenAI语义约定
 - **自定义属性**: AI操作增强的元数据
 
 ## 使用方法
+
+### 基本命令
+
+项目支持多种运行模式和遥测配置：
+
+```bash
+# 聊天模式示例 (默认console导出器)
+go run main.go chat
+
+# 工具调用模式示例 (默认console导出器)
+go run main.go tool
+
+# 代理模式示例 (默认console导出器)
+go run main.go agent
+
+# 强制使用HTTP导出器
+go run main.go chat --http
+go run main.go tool --http
+go run main.go agent --http
+```
 
 ### 代理模式
 
 运行代理示例查看多步骤任务规划和执行：
 
 ```bash
-go run main.go
+go run main.go agent
 ```
 
 示例输出：
@@ -86,7 +108,7 @@ go run main.go
 运行单个工具示例：
 
 ```bash
-go run pkg/tool/tool.go
+go run main.go tool
 ```
 
 示例输出：
@@ -193,30 +215,67 @@ span.SetAttributes(
 
 ## 配置
 
-### OpenTelemetry设置
+### 遥测配置
 
-项目使用OpenTelemetry进行追踪。确保您有正在运行的OpenTelemetry收集器，或根据需要配置导出器。
+项目支持多种OpenTelemetry导出器配置方式：
 
-### 依赖项
+#### 命令行选项
+- `--http`: 强制使用HTTP导出器，连接到 localhost:4318
+
+#### 环境变量
+```bash
+# 设置导出器类型 (console/http/otlp/auto)
+export OTEL_TRACES_EXPORTER=http
+
+# 设置OTLP端点
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+
+# 设置服务名称
+export OTEL_SERVICE_NAME=gen-ai-example
+```
+
+#### 导出器类型说明
+- **console**: 开发环境，输出到控制台
+- **http**: 生产环境，发送到OTLP兼容的收集器
+- **auto**: 自动检测，优先HTTP，失败时回退到console
+
+#### 依赖项
 
 主要依赖项：
 - `go.opentelemetry.io/otel`: OpenTelemetry API
-- `go.opentelemetry.io/otel/semconv/v1.37.0`: 语义约定
+- `go.opentelemetry.io/otel/exporters/stdout/stdouttrace`: Console导出器
+- `go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp`: HTTP导出器
+- `go.opentelemetry.io/otel/semconv/v1.24.0`: 语义约定
 - `github.com/google/uuid`: UUID生成
 
 ## 测试
 
 运行项目查看示例演示：
 
+### 开发环境测试（Console导出器）
 ```bash
-go run .
+go run main.go agent
+go run main.go tool
+go run main.go chat
+```
+
+### 生产环境测试（HTTP导出器）
+```bash
+# 强制使用HTTP导出器
+go run main.go agent --http
+
+# 使用环境变量配置
+export OTEL_TRACES_EXPORTER=http
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+go run main.go agent
 ```
 
 示例演示：
 1. 代理任务规划，包含天气和计算器任务
 2. 工具执行，具备适当的错误处理
-3. 全面遥测追踪
+3. 全面遥测追踪（输出到console或HTTP）
 4. 结构化JSON输出格式
+5. 多导出器自动检测和回退机制
 
 ## 许可证
 
