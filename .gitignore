@@ -1,2 +1,48 @@
+# Claude Code
 .claude
-vendor
+.settings.local.json
+
+# Go
+vendor/
+*.out
+*.exe
+*.test
+*.prof
+coverage.html
+coverage.out
+*.testlog
+testmain.go
+testmain.c
+*.swp
+*.swo
+
+# Docker and Compose
+examples/tempo/data/
+examples/tempo/grafana/data/
+*.log
+*.log.*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Temporary files
+tmp/
+temp/
+*.tmp

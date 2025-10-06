@@ -248,6 +248,55 @@ export OTEL_SERVICE_NAME=gen-ai-example
 - `go.opentelemetry.io/otel/semconv/v1.24.0`: 语义约定
 - `github.com/google/uuid`: UUID生成
 
+## 监控和可视化
+
+### Grafana Tempo 配置示例
+
+项目包含 Grafana Tempo 的完整配置示例，用于收集和可视化遥测数据：
+
+#### 快速启动
+
+```bash
+# 进入示例目录
+cd examples/tempo
+
+# 启动 Tempo 和 Grafana
+docker-compose up -d
+
+# 查看服务状态
+docker-compose ps
+```
+
+#### 访问服务
+
+- **Tempo API**: http://localhost:3200
+- **Grafana Web界面**: http://localhost:3000 (admin/admin)
+- **OTLP HTTP端点**: http://localhost:4318
+
+#### 配置项目使用 Tempo
+
+```bash
+# 设置环境变量使用HTTP导出器连接到Tempo
+export OTEL_TRACES_EXPORTER=http
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+export OTEL_SERVICE_NAME=gen-ai-example
+
+# 运行项目
+go run main.go agent
+```
+
+#### 预配置的仪表板
+
+示例包含专门的 Gen AI 追踪仪表板，包含：
+- Trace 处理速率监控
+- 详细的 Trace 探索器
+- 服务映射和拓扑视图
+- 错误率分析
+
+#### 详细设置指南
+
+更多详细的配置选项和部署指南请参考：[TEMPO_SETUP.md](examples/tempo/TEMPO_SETUP.md)
+
 ## 测试
 
 运行项目查看示例演示：
@@ -270,12 +319,33 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 go run main.go agent
 ```
 
+### 完整监控栈测试
+```bash
+# 进入示例目录
+cd examples/tempo
+
+# 启动监控栈
+docker-compose up -d
+
+# 等待服务启动
+sleep 10
+
+# 使用HTTP导出器运行项目
+export OTEL_TRACES_EXPORTER=http
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+go run main.go agent
+
+# 访问 Grafana 查看追踪数据
+# http://localhost:3000 (admin/admin)
+```
+
 示例演示：
 1. 代理任务规划，包含天气和计算器任务
 2. 工具执行，具备适当的错误处理
 3. 全面遥测追踪（输出到console或HTTP）
 4. 结构化JSON输出格式
 5. 多导出器自动检测和回退机制
+6. Grafana Tempo 可视化监控
 
 ## 许可证
 
