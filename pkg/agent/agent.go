@@ -260,7 +260,9 @@ func RunAgentMode() {
 	agent.RegisterTool(&tool.WeatherTool{})
 	agent.RegisterTool(&tool.CalculatorTool{})
 
-	ctx := context.Background()
+	// 创建根上下文和追踪
+	ctx, rootSpan := telemetry.GetTracer("agent assistant").Start(context.Background(), "agent-mode.root")
+	defer rootSpan.End()
 
 	// 设定目标
 	objective := "请帮我查询北京的天气，然后计算10+25的结果"
