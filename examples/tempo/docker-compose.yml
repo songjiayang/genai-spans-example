@@ -12,7 +12,7 @@ services:
       - "4318:4318"  # OTLP HTTP
     volumes:
       - ./tempo-config.yml:/etc/tempo.yml
-      - ./data/tempo:/tmp/tempo
+      - tempo-data:/etc/tempo/data
     networks:
       - tempo-network
 
@@ -26,10 +26,14 @@ services:
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/data:/var/lib/grafana
+      - grafana-data:/var/lib/grafana
     networks:
       - tempo-network
 
 networks:
   tempo-network:
     driver: bridge
+
+volumes:
+  tempo-data:
+  grafana-data:
